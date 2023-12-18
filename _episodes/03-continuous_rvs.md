@@ -514,14 +514,3 @@ It's also useful to note that __a normally distributed variate added to another 
 > Finally, we should bear in mind that, as with other distributions, in the large sample limit the binomial and Poisson distributions both approach the normal distribution, with mean and standard deviation given by the expected values for the discrete distributions (i.e. $$\mu=n\theta$$ and $$\sigma=\sqrt{n\theta(1-\theta)}$$ for the binomial distribution and $$\mu = \lambda$$ and $$\sigma = \sqrt{\lambda}$$ for the Poisson distribution). It's easy to do a simple comparison yourself, by overplotting the Poisson or binomial pdfs on those for the normal distribution.
 > 
 {: .callout}
-
-> ## Programming challenge: the central limit theorem applied to skewed distributions
-> We used Monte Carlo simulations above to show that the sum of $$n$$ random uniform variates converges on a normal distribution for large $$n$$. Now we will investigate what happens when the variates being summed are drawn from a skewed distribution, such as the lognormal distribution. Repeat the exercise above to show the ratio compared to a normal distribution for multiple values of $$n$$, but for a sum of lognormally distributed variates instead of the uniformly distributed variates used above. You should try this for the following lognormal distribution parameters:
-> 
-> - $$s=0.5$$ and $$m=1$$.
-> - $$s=1$$ and $$m=1$$.
-> 
-> Also, use the functions `scipy.stats.skew` and `scipy.stats.kurtosis` to calculate the sample skew and kurtosis of your sums of simulated variates for each value of $$n$$ and include the calculated values in the legends of your plots. Besides giving the simulated data array, you can use the default arguments for each function. These functions calculate the sample equivalents (i.e. for actual data) of the standardised skew and excess kurtosis.
->
-> Based on your plots and your measurements of the sample skew and kurtosis for each $$n$$ considered, comment on what effect the skewness of the initial lognormal distribution has on how quickly a normal distribution is reached by summing variates.
-{: .challenge}
