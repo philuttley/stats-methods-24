@@ -246,19 +246,6 @@ Biased coin:  ['h' 'h' 't' 'h' 'h' 't' 'h' 'h' 'h' 'h']
 Remember that your own results will differ from these because your random number generator seed will be different!
 
 
-> ## Programming challenge: simulating hands in 3-card poker
-> A normal deck of 52 playing cards, used for playing poker, consists of 4 'suits' (in English, these are clubs, spades, diamonds and hearts) each with 13 cards. The cards are also ranked by the number or letter on them: in normal poker the rank ordering is first the number cards 2-10, followed by - for English cards - J(ack), Q(ueen), K(ing), A(ce). However, for our purposes we can just consider numbers 1 to 13 with 13 being the highest rank.
->
-> In a game of three-card poker you are dealt a 'hand' of 3 cards from the deck (you are the first player to be dealt cards). If your three cards can be arranged in sequential numerical order (the suit doesn't matter), e.g. 7, 8, 9 or 11, 12, 13, your hand is called a __straight__. If you are dealt three cards from the same suit, that is called a __flush__. You can also be dealt a __straight flush__ where your hand is both a straight and a flush. Note that these three hands are mutually exclusive (because a straight and a flush in the same hand is always classified as a straight flush)!
->
-> Write some Python code that simulates randomly being dealt 3 cards from the deck of 52 and determines whether or not your hand is a straight, flush or straight flush (or none of those). Then simulate a large number of hands (at least $$10^{6}$$!) and from this simulation, calculate the probability that your hand will be a straight, a flush or a straight flush. Use your simulation to see what happens if you are the last player to be dealt cards __after__ 12 other players are dealt their cards from the same deck. Does this change the probability of getting each type of hand?
->
->> ## Hint
->> To sample cards from the deck you can set up a list of tuples which each represent the suit and the rank of a single card in the deck, e.g. `(1,3)` for suit 1, card rank 3 in the suit. The exact matching of numbers to suits or cards does not matter!
-> {: .solution}
-{: .challenge}
-
-
 
 
 
