@@ -36,7 +36,7 @@ One of the simplest questions we can ask is whether the data is consistent with 
 
 ## Test statistics and significance testing
 
-We have already seen in our discussion of Bayes' theorem that our goal is usually to determine the probability of whether a hypothesis ($$H$$) is true, under certain assumptions and given the data ($$D$$), which we express as $$P(H\vert D)$$. However, the calculation of this posterior probability is challenging and we may have limited data available which we can only use to address simpler questions. For asking simple yes/no questions of the data, frequentist statistics has developed an approach called [__significance testing__]({{ page.root }}/reference/#significance-test), which works as follows.
+For asking simple yes/no questions of whether the data seem to be consistent with a given hypothesis, frequentist statistics has developed an approach called [__significance testing__]({{ page.root }}/reference/#significance-test), which works as follows.
 
 1. Formulate a simple [__null hypothesis__]({{ page.root }}/reference/#hypothesis) $$H_{0}$$ that can be used to ask the question: _are the data __consistent__ with_ $$H_{0}$$?
 2. Calculate a [__test statistic__]({{ page.root }}/reference/#test-statistic) $$z^{\prime}$$ from the data, the probability distribution of which, $$p(z)$$ can be determined in the case when $$H_{0}$$ is true.
