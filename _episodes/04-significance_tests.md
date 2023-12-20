@@ -505,14 +505,4 @@ The standard two-sample test further assumes that the two populations being comp
 > {: .solution}
 {: .challenge}
 
-
-> ## Programming challenge: 
-> In this challenge we will carry out significance tests to compare the means of certain quantities in our SDSS quasar sample, which you can load in using the code you wrote for the challenge in the previous episode.
->
-> First, split your sample into two sub-samples based on radio-loudness (R_6CM_2500A), with the split in the samples corresponding to whether the quasars' radio-loudness is above or below the median value. Using these two sub-samples, determine whether the mean black hole mass for each sub-sample is drawn from the same population or not. Explain clearly your reasoning.
-> 
-> Finally, for those data in each radio-loudness sub-sample which also have values of LOGL1350$$>$$0 and its error $$<$$0.1, calculate a "colour" (in this case, a quantity which indicates the relative strength of far-UV to near-UV emission) which is equal to (LOGL1350-LOGL3000) and determine whether the sample means of this quantity are drawn from different populations for each sub-sample. Explain clearly your reasoning.
-> 
-{: .challenge}
-
 [michelson_data]: https://github.com/philuttley/statistical-inference/tree/gh-pages/data/michelson.txt
