@@ -318,16 +318,3 @@ print("The mean and standard deviations of the bootstrapped samples of $b$ are:"
       np.mean(b_arr),"and",np.std(b_arr,ddof=1),"respectively")
 ~~~
 {: .language-python}
-
-
-> ## Programming challenge
-> In the challenge from the previous episode, you used linear regression to determine the gradient and offset ($$y$$-axis intercept) of the relation between LOGL3000 (on the $$x$$-axis) and LOGL_MGII (on the $$y$$-axis) for your cleaned SDSS quasar sample. You split the sample according to radio loudness (as in the Episode 7 challenge) and carried out a linear regression on the LOGL3000 vs. LOGL_MGII relation of the two radio-selected sub-samples. Although we asked you to note any difference between the regression parameters for the two sub-samples, you were not able to assign any statistical significance or meaning to these quantities, without appropriate confidence intervals on them. 
->
-> In this challenge, you will use bootstrapping to assess the uncertainty on your regression parameters and estimate errors on them.  Use bootstrapping (with at least 1000 bootstrap trials) on your two radio-selected sub-samples, to measured gradients and offsets for each sub-sample. For each of the bootstrap trials, record the gradient and offset and use these values from all trials to estimate the correlation coefficient between the gradient and offset parameters in your sample of bootstrap measurements. Also use the bootstrap results to calculate the mean and standard deviation (i.e. 1-$$\sigma$$ errors) for the gradient and offset for each radio-selected sub-sample. 
->
-> Is most of the observed variance in the gradient and offset due to correlated variations in the two parameters, or independent variations?
->
-> Also, make a scatter-plot of the offsets and gradient  from the bootstrap sample to see how they are distributed. By overplotting these scatter plots for the different quasar samples, show whether or not the relation between LOGL3000 and LOGL_MGII is different between the two radio-selected sub-samples.
->
-{: .challenge}
-
