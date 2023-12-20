@@ -469,26 +469,6 @@ Provided that the probability densities of individual measurements can be calcul
 > {: .solution}
 {: .challenge}
 
-> ## Programming challenge: estimating $$g$$ by timing a pendulum
-> In a famous physics lab experiment, the swing of a pendulum can be used to estimate the gravitational acceleration at the Earth's surface $$g$$. Using the small-angle approximation, the period of the pendulum swing $$T$$, is related to $$g$$ and the length of the pendulum string $$L$$, via:
->
-> $$T=2\pi \sqrt{\frac{L}{g}}$$
->
-> You obtain the following set of four measurements of $$T$$ for a pendulum with $$L=1$$ m (you may assume that $$L$$ is precisely known):
-> 
-> $$1.98\pm0.02$$ s, $$2.00\pm0.01$$ s, $$2.05\pm0.03$$ s, $$1.99\pm0.02$$ s.
->
-> You may assume that the experimental measurements are drawn from normal distributions around the true value of $$T$$, with distribution means equal to the true value of $$T$$ and standard deviations $$\sigma$$ equal to the error for that measurement. Assuming a uniform prior, use these measurements with Bayes' theorem to calculate the posterior probability distribution for $$g$$ (__not__ T!).
->
-> Then, show what happens if you add a very precise measurement to the existing data: $$2.004\pm0.001$$ s.
->
->> ## Hints
->> You will need to calculate the pdf value for each measurement and value of $$g$$ that you calculate the posterior distribution for, using the normal distribution pdf. For scipy statistical distributions it is possible to use numpy array broadcasting to generate multi-dimensional arrays, e.g. to determine the pdf for each measurement and value of $$g$$ separately and efficiently in a single 2-dimensional array, assuming a set of different location and scale parameters for each measurement. To do so, you should reshape the initial arrays you use for the measurements and errors to be 2-dimensional with shape (4,1), when you want to use them in the scipy pdf function. For integration you can use the `scipy.integrate` Simpson's rule method, used elsewhere in this episode.
->> 
-> {: .solution}
->
-{: .challenge}
-
 [vdplas_primer]: https://arxiv.org/abs/1411.5018
 [eddy_bayes]: https://www.nature.com/articles/nbt0904-1177
 
