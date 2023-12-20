@@ -340,14 +340,6 @@ plt.show()
 ~~~
 {: .language-python}
 
-
-> ## Programming challenge: 
-> In the Episode 6 programming challenge, you made scatter plots of the quantities LOGL3000, LOGL_MGII, R_6CM_2500A and LOGBH. Now use appropriate methods to look for correlations between these different quantities and report your conclusions based on your results. 
->
-> Next, use linear regression to determine the gradient and offset of the relation between LOGL3000 (on the 𝑥-axis) and LOGL_MGII (on the 𝑦-axis). Then repeat the linear regression analysis of these variables for the two sub-samples based on radio loudness, which you created in the Episode 7 programming challenge and note any differences between the linear regression parameters for the two sub-samples.
->
- {: .challenge}
-
 [anscombe_plot]: https://commons.wikimedia.org/w/index.php?curid=9838454
 [reynolds_data]: https://github.com/philuttley/statistical-inference/tree/gh-pages/data/reynolds.txt
 
