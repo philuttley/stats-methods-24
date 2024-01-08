@@ -72,27 +72,27 @@ Consider a set of repeated samples or draws of a random variable which are [__in
 
 The [__expectation__]({{ page.root }}/reference/#expectation) $$E(X)$$ is equal to the arithmetic mean of the random variates as the number of sampled variates increases $$\rightarrow \infty$$. For a discrete probability distribution it is given by the mean of the distribution function, i.e. the pmf, which is equal to the sum of the product of all possible values of the variable with the associated probabilities:
 
-$$E[X] = \mu =  \sum\limits_{i=1}^{n} x_{i}p(x_{i})$$
+$$E[X] = \mu =  \sum\limits_{i} x_{i}p(x_{i})$$
 
 This quantity $$\mu$$ is often just called the [__mean__]({{ page.root }}/reference/#mean) of the distribution, or the [__population mean__]({{ page.root }}/reference/#population) to distinguish it from the [__sample mean__]({{ page.root }}/reference/#sample) of data, which we will come to later on.
 
 More generally, we can obtain the expectation of some function of $$X$$, $$f(X)$$:
 
-$$E[f(X)] = \sum\limits_{i=1}^{n} f(x_{i})p(x_{i})$$
+$$E[f(X)] = \sum\limits_{i} f(x_{i})p(x_{i})$$
 
 It follows that the expectation is a _linear operator_. So we can also consider the expectation of a scaled sum of variables $$X_{1}$$ and $$X_{2}$$ (which may themselves have different distributions):
 
 $$E[a_{1}X_{1}+a_{2}X_{2}] = a_{1}E[X_{1}]+a_{2}E[X_{2}]$$
 
-and more generally for a scaled sum of variables $$Y=\sum\limits_{i=1}^{n} a_{i}X_{i}$$:
+and more generally for a scaled sum of variables $$Y=\sum\limits_{j} a_{j}X_{j}$$:
 
-$$E[Y] = \sum\limits_{i=1}^{n} a_{i}E[X_{i}] = \sum\limits_{i=1}^{n} a_{i}\mu_{i}$$
+$$E[Y] = \sum\limits_{j} a_{j}E[X_{j}] = \sum\limits_{j} a_{j}\mu_{j}$$
 
 i.e. the expectation for a scaled sum of variates is the scaled sum of their distribution means.
 
 It is also useful to consider the [__variance__]({{ page.root }}/reference/#variance), which is a measure of the squared 'spread' of the values of the variates around the mean, i.e. it is related to the weighted width of the probability distribution. It is a squared quantity because deviations from the mean may be positive (above the mean) or negative (below the mean). The (population) variance of discrete random variates $$X$$ with (population) mean $$\mu$$, is the expectation of the function that gives the squared difference from the mean:
 
-$$V[X] = \sigma^{2} = \sum\limits_{i=1}^{n} (x_{i}-\mu)^{2} p(x_{i})$$
+$$V[X] = \sigma^{2} = \sum\limits_{i} (x_{i}-\mu)^{2} p(x_{i})$$
 
 It is possible to rearrange things:
 
@@ -108,7 +108,7 @@ $$V[f(X)] = E[f(X)^{2}] - E[f(X)]^{2}$$
 
 For a sum of [__independent__]({{ page.root }}/reference/#independence), scaled random variables, the expected variance is equal to the sum of the individual variances multiplied by their squared scaling factors: 
 
-$$V[Y] = \sum\limits_{i=1}^{n}  a_{i}^{2} \sigma_{i}^{2}$$
+$$V[Y] = \sum\limits_{j}  a_{j}^{2} \sigma_{j}^{2}$$
 
 We will consider the case where the variables are correlated (and not independent) in a later Episode.
 
