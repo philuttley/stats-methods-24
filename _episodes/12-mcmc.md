@@ -13,6 +13,35 @@ keypoints:
 - 
 ---
 
+### Understanding the Metropolis-Hastings MCMC Algorithm
+
+The Metropolis-Hastings algorithm is a cornerstone of computational physics and astronomy, particularly in the context of Bayesian inference and statistical sampling. Its primary objective is to generate a sequence of sample points from a probability distribution, especially when direct sampling is challenging.
+
+#### The Core Idea
+
+At its core, Metropolis-Hastings is a stochastic process that constructs a Markov chain. A Markov chain is a sequence of random variables where the probability of each variable depends only on the state attained in the previous step, not on the full path that led to that state.
+
+#### Algorithm Steps
+
+1. **Initialization**: Start with an arbitrary point \( x_0 \) in the parameter space.
+
+2. **Iteration**: For each step \( i \), perform the following:
+
+   a. **Proposal**: Generate a new candidate point \( x'\) based on a proposal distribution \( Q(x'|x_i) \). This distribution is often chosen to be symmetric (e.g., a Gaussian centered on \( x_i \)) but doesn't have to be.
+
+   b. **Acceptance Criterion**: Calculate the acceptance probability \( alpha \) given by:
+      \[
+      \alpha(x'|x_i) = \min \left(1, frac{P(x')Q(x_i|x')}{P(x_i)Q(x'|x_i)}
+\right)
+      \]
+      where \( P(x) \) is the target distribution we want to sample from.
+
+   c. **Accept or Reject**: Draw a random number \( u \) from a uniform distribution over [0, 1]. If \( u \leq \alpha \), accept \( x' \) as the next point in the chain (set \( x_{i+1} = x' \)). Otherwise, reject \( x' \) and set \( x_{i+1} = x_i \).
+
+3. **Convergence**: Repeat step 2 until the chain reaches a stationary distribution. The number of iterations required depends on the problem and the chosen proposal distribution.
+
+
+
 ## Easy Markov Chain Monte Carlo with emcee
 
 In this tutorial we will learn how to use the `emcee` Markov Chain Monte Carlo (MCMC) Python module to obtain confidence intervals for a multi-parameter model fit. The approach is based on the example of fitting models to data, given on the `emcee` website: http://dfm.io/emcee/current/user/line/.  You should have already installed `emcee` in your Python environment (e.g. using `pip install emcee`) before you start.  Also, you should install the handy `corner` plotting module.
