@@ -13,7 +13,12 @@ keypoints:
 - 
 ---
 
-### Understanding the Metropolis-Hastings MCMC Algorithm
+<script src="../code/math-code.js"></script>
+<!-- Just one possible MathJax CDN below. You may use others. -->
+<script async src="//mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+## Understanding the Metropolis-Hastings MCMC Algorithm
 
 The Metropolis-Hastings algorithm is a cornerstone of computational physics and astronomy, particularly in the context of Bayesian inference and statistical sampling. Its primary objective is to generate a sequence of sample points from a probability distribution, especially when direct sampling is challenging.
 
@@ -23,20 +28,19 @@ At its core, Metropolis-Hastings is a stochastic process that constructs a Marko
 
 #### Algorithm Steps
 
-1. **Initialization**: Start with an arbitrary point \( x_0 \) in the parameter space.
+1. **Initialization**: Start with an arbitrary point $$x_0$$ in the parameter space.
 
-2. **Iteration**: For each step \( i \), perform the following:
+2. **Iteration**: For each step $$i$$, perform the following:
 
-   a. **Proposal**: Generate a new candidate point \( x'\) based on a proposal distribution \( Q(x'|x_i) \). This distribution is often chosen to be symmetric (e.g., a Gaussian centered on \( x_i \)) but doesn't have to be.
+   a. **Proposal**: Generate a new candidate point $$x'$$ sampled from a proposal distribution $$q(x'|x_i)$$. This distribution is often chosen to be symmetric (e.g. a normal distribution centered on $$x_i$$) but doesn't have to be.
 
-   b. **Acceptance Criterion**: Calculate the acceptance probability \( alpha \) given by:
-      \[
-      \alpha(x'|x_i) = \min \left(1, frac{P(x')Q(x_i|x')}{P(x_i)Q(x'|x_i)}
-\right)
-      \]
-      where \( P(x) \) is the target distribution we want to sample from.
+   b. **Acceptance Criterion**: Calculate the acceptance probability $$\alpha$$ given by:
+      
+$$\alpha(x'|x_i) = \min \left(1,frac{p(x')q(x_i|x')}{p(x_i)q(x'|x_i)}\right)$$
+      
+      where $$p(x)$$ is the target distribution we want to sample from.
 
-   c. **Accept or Reject**: Draw a random number \( u \) from a uniform distribution over [0, 1]. If \( u \leq \alpha \), accept \( x' \) as the next point in the chain (set \( x_{i+1} = x' \)). Otherwise, reject \( x' \) and set \( x_{i+1} = x_i \).
+   c. **Accept or Reject**: Draw a random number $$u$$ from a uniform distribution over $$[0, 1]$$. If $$u \leq \alpha$$, accept $$x'$$ as the next point in the chain (set $$x_{i+1} = x'$$). Otherwise, reject $$x'$$ and set $$x_{i+1} = x_i$$.
 
 3. **Convergence**: Repeat step 2 until the chain reaches a stationary distribution. The number of iterations required depends on the problem and the chosen proposal distribution.
 
