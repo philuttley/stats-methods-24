@@ -35,8 +35,10 @@ At its core, Metropolis-Hastings is a stochastic process that constructs a Marko
    a. **Proposal**: Generate a new candidate point $$x'$$ sampled from a proposal distribution $$q(x'|x_i)$$. This distribution is often chosen to be symmetric (e.g. a normal distribution centered on $$x_i$$) but doesn't have to be.
 
    b. **Acceptance Criterion**: Calculate the acceptance probability $$\alpha$$ given by:
+
       
-$$\alpha(x'|x_i) = \min \left(1,frac{p(x')q(x_i|x')}{p(x_i)q(x'|x_i)}\right)$$
+$$\alpha(x',x_i) = \min \left(1,frac{p(x')q(x_i,x')}{p(x_i)q(x',x_i)}\right)$$
+
       
       where $$p(x)$$ is the target distribution we want to sample from.
 
