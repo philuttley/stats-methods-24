@@ -484,7 +484,7 @@ Provided that the probability densities of individual measurements can be calcul
 >
 >> ## Hints
 >> You will need to create an array of $$g$$ values to that you will use as the points where you calculate the posterior pdf of $$g$$, so they should include as much of the distribution as possible (at least so the posterior pdf values are extremely small at the upper and lower bounds of your array). To obtain the likelihood, for each measurement, you calculate the appropriate normal distribution (log))pdf value at all calculated values of $$g$$ You should think about which values you need for the mean (location parameter) and standard deviation (scale parameter). 
-
+>>
 >> For scipy statistical distributions it is possible to use numpy array broadcasting to generate multi-dimensional arrays, e.g. to determine the pdf for each measurement and value of $$g$$ separately and efficiently in a single 2-dimensional array, assuming a set of different location and scale parameters for each measurement. To do so, you should reshape the initial arrays you use for the measurements and errors to be 2-dimensional with shape (4,1), when you want to use them in the scipy pdf function. For integration you can use the `scipy.integrate` Simpson's rule method, used elsewhere in this episode.
 >> 
 > {: .solution}
