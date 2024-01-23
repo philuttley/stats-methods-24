@@ -30,7 +30,7 @@ Sampling from a distribution is commonly used to generate random numbers. A rand
 
 A simple solution to this problem is the accept-reject method, which can in principle be used to sample random numbers from any distribution $$f(x)$$ where the probability is bounded (or approximately bounded) by finite values of $$x$$. A typical approach to generate a sample of $$n$$ random variates is as follows:
 1. First, sample a trial random number from a known distribution to determine the $$x$$ value, $$x_{\rm try}$$.
-2. Calculate $$f(x)$$ and determine the ratio $$f(x_{\rm try))/{\rm max}(f(x))$$, where $$\mbox{max}(f(x))$$ is the maximum value of the function. Now generate a uniform ($$U(0,1)$$) variate $$p_{\rm try}$$. If $$p_{\rm try}\leq f(x_{\rm try))/{\rm max}(f(x))$$ the trial $$x_{\rm try}$$ is accepted as a random variate drawn from $$f(x)$$. Otherwise $$x_{\rm try}$$ is discarded.
+2. Calculate $$f(x)$$ and determine the ratio $$f(x_{\rm try})/{\rm max}(f(x))$$, where $$\mbox{max}(f(x))$$ is the maximum value of the function. Now generate a uniform ($$U(0,1)$$) variate $$p_{\rm try}$$. If $$p_{\rm try}\leq f(x_{\rm try})/{\rm max}(f(x))$$ the trial $$x_{\rm try}$$ is accepted as a random variate drawn from $$f(x)$$. Otherwise $$x_{\rm try}$$ is discarded.
 3. Repeat steps 1 and 2 until $$n$$ random variates from $$f(x)$$ have been accepted.
 
 Although this approach can generate random numbers very flexibly for any given distribution, it can be very inefficient if the random variates $$x_{\rm try}$$ and $$p_{\rm try}$$ used to sample from the distribution are not well-matched to its shape. For example, consider the case where we would like to sample random variates in the range $$x_{\rm min}$$ to $$x_{\rm max}$$, from a probability distribution given by a power-law with an exponential cut-off at large values of $$x$$:
@@ -150,13 +150,13 @@ At its core, Metropolis-Hastings is a stochastic process that constructs a Marko
 ## Easy Markov Chain Monte Carlo with emcee
 
 Now we will learn how to use the `emcee` Markov Chain Monte Carlo (MCMC) Python module to obtain confidence intervals for a multi-parameter model fit. The approach is based on the example of fitting models to data, given on the `emcee` website: http://dfm.io/emcee/current/user/line/.  You should have already installed `emcee` in your Python environment before you start.  Also, you should install the handy `corner` plotting module.
+
 ```python
 import numpy as np
 import scipy.stats as sps
 import matplotlib.pyplot as plt
 import scipy.optimize as spopt
 import scipy.integrate as spint
-%matplotlib notebook
 ```
 
 Now we will set up the MCMC.  We first need to set up the starting positions of the 'walkers' in the 4-dimensional parameter space, which will roam the likelihood surface and (after some burn-in time) map the parameter distributions.  To do this, we follow the approach of the `emcee` example and generate the starting positions from narrow normal distributions centred on the parameter MLEs.  For the standard deviation of the distributions we can use a scaled version of the error estimates already determined from the MLEs via the covariance.  This should ensure a fairly rapid burn-in time, as the positions of the walkers are well-matched to the estimated shapes of the parameter distributions.
