@@ -18,13 +18,119 @@ keypoints:
 <script async src="//mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
+## Dealing with difficult distributions
+
+In many cases we would like to be able to constrain and ideally sample from a probability distribution, which requires knowledge of the integral of the distribution, so we can calculate the cdf (e.g. to estimate confidence intervals) or its inverse, in order to generate random samples from the distribution. Or we might want to determine a marginal pdf, e.g. to calculate the posterior probability of some interesting parameter. 
+
+In all these cases and many others, it may be easy to calculate the pdf, but integrating it can be much more difficult and time-consuming if e.g. a brute force grid search or numerical integration of a multi-parameter distribution is required. A solution is to reduce the number of calculations required by random sampling over the distribution. This will lead us to consider one of the most powerful tools for scientific inference: Markov Chain Monte Carlo (MCMC). 
+
+## A simple approach: the accept-reject method
+
+Sampling from a distribution is commonly used to generate random numbers. A random number drawn from a $$U(0,1)$$ distribution corresponds to a percentile in the cdf of any other distribution. If the cdf for a given distribution can be inverted (to obtain the point-percent function or ppf), the uniform variate we drew can be converted directly into a corresponding random number sampled from that new distribution. However, often it isn't easy (or it may be impossible) to obtain the ppf from a distribution, e.g. if the integration of the pdf, or the inversion of the cdf are difficult.
+
+A simple solution to this problem is the accept-reject method, which can in principle be used to sample random numbers from any distribution $$f(x)$$ where the probability is bounded (or approximately bounded) by finite values of $$x$$. A typical approach to generate a sample of $$n$$ random variates is as follows:
+1. First, sample a trial random number from a known distribution to determine the $$x$$ value, $$x_{\rm try}$$.
+2. Calculate $$f(x)$$ and determine the ratio $$f(x_{\rm try))/\mbox{max}(f(x))$$, where $$\mbox{max}(f(x))$$ is the maximum value of the function. Now generate a uniform ($$U(0,1)$$) variate $$p_{\rm try}$$. If $$p_{\rm try}\leq f(x_{\rm try))/\mbox{max}(f(x))$$ the trial $$x_{\rm try}$$ is accepted as a random variate drawn from $$f(x)$$. Otherwise $$x_{\rm try}$$ is discarded.
+3. Repeat steps 1 and 2 until $$n$$ random variates from $$f(x)$$ have been accepted.
+
+Although this approach can generate random numbers very flexibly for any given distribution, it can be very inefficient if the random variates $$x_{\rm try}$$ and $$p_{\rm try}$$ used to sample from the distribution are not well-matched to its shape. For example, consider the case where we would like to sample random variates in the range $$x_{\rm min}$$ to $$x_{\rm max}$$, from a probability distribution given by a power-law with an exponential cut-off at large values of $$x$$:
+
+$$p(x)\propto x^{-\alpha}\exp(-x/x_{\rm cut})$$
+
+This distribution is challenging both to integrate and invert the integral (to obtain the ppf). However, with the accept-reject method the function we can use is simply the right-hand side of the proportionality, i.e. $$f(x)=x^{-\alpha}\exp(-x/x_{\rm cut})$$ - we do not need to normalise it so that the probability integrates to 1, as any normalisation factor is removed in step 2 of the method. The accept-reject method ensures that the random variates of any sample-size are samples from the distribution.
+
+Let's look at some simple code where in step 1 we sample from $$U(x_{\rm min},x_{\rm max})$$ to obtain $$x_{\rm try}$$:
+
+```python
+def plexp(x,alpha,xcut):
+    '''Power-law function with index alpha an exponential cut-off with scaling factor xcut'''
+    return (x**alpha)*np.exp(-x/xcut)
+
+def sample_plexp_ucdf(nsamp,xmin,xmax,alpha,xcut):
+    '''Accept-reject sampling of function f(x) which is a power-law with exponential cut-off. 
+    Trial x values are drawn from a uniform distribution U[xmin,xmax]. Trial probabilities are 
+    drawn from U[0,1] and accepted if p<=f(x)/f(xmin) (f(xmin) is a maximum assuming negative 
+    PL index).'''
+    xvals = np.zeros(nsamp)
+    i = 0
+    ntry = 0
+    ymax = plexp(xmin,alpha,xcut)  # Requires alpha to be negative
+    while i < nsamp:
+        xtry = sps.uniform.rvs(loc=xmin,scale=xmax-xmin) # uniform trial x between xmin and xmax
+        ptry = sps.uniform.rvs() # uniform trial p value
+        if (ptry <= plexp(xtry,alpha,xcut)/ymax): # condition to accept
+            xvals[i] = xtry
+            i = i+1
+        ntry = ntry+1
+    return xvals, ntry
+```
+We will sample from a distribution with $$\alpha=-1.5$$, $$x_{\rm cut}=5$$. The figure shows the results of the trials for a sample of 1000 variates, with successes marked in orange and rejections in blue. Note how the points are uniformly distributed in both the $$x$$ and $$y$$ directions, but because of the steepness of the function, only a small fraction of trials are actually accepted: here we generated 18710 trials to obtain only 1000 samples!
+ 
+<p align='center'>
+<img alt="Accept-reject uniform" src="../fig/ep12_acc_rej_usamp.png" width="700"/>
+</p>
+
+We can improve the situation significantly if we tailor the shape of our trial distributions to better match the function we are trying to sample from. E.g. instead of sampling $$x_{\rm try}$$ from a uniform distribution, we can instead sample it from a power-law distribution with the same index as the exponentially cut-off power-law we are trying to sample from. A power-law distribution can be easily integrated and inverted to obtain random samples from it. In this way, we can remove much of the inefficiency of the uniform sampling of $$x_{\rm try}$$ because we have already accounted for one part of the distribution function. This can be better seen from the example code and figure which use this approach:
+
+```python
+def powinvcdf(prob,alpha,xmin,xmax):
+    '''Inverse cdf (i.e. point percent function) of a simple power-law with lower and upper bounds
+    at xmin and xmax respectively. Returns x value corresponding to given cdf probability prob.'''
+    if alpha != -1:
+        xval = (prob*(xmax**(alpha+1)-xmin**(alpha+1))+xmin**(alpha+1))**(1/(alpha+1))
+    else:
+        xval = x_min*(x_max/x_min)**prob
+    return xval
+
+def sample_plexp_plcdf(nsamp,xmin,xmax,alpha,xcut):
+    '''Accept-reject sampling of function f(x) which is a power-law with exponential cut-off. 
+    Trial x values are drawn from a power-law distribution bounded by xmin and xmax. 
+    Trial probabilities are drawn from U[0,1] and accepted if p<=f'(x)/f'(xmin) 
+    where f'(x) corresponds to the exponential function only and f'(xmin) should be the maximum
+    value of f'(x).'''
+    xvals = np.zeros(nsamp)
+    i = 0
+    ntry = 0
+    ymax = plexp(xmin,alpha,xcut)  # Requires alpha to be negative
+    while i < nsamp:
+        xtry = powinvcdf(sps.uniform.rvs(),alpha,xmin,xmax) # PL distributed x between xmin and xmax
+        ptry = sps.uniform.rvs() # uniform trial p value
+        if (ptry <= np.exp(-xtry/xcut)/np.exp(-xmin/xcut)): # condition to accept
+            xvals[i] = xtry
+            i = i+1
+        ntry = ntry+1            
+    return xvals, ntry
+```
+
+<p align='center'>
+<img alt="Accept-reject PL" src="../fig/ep12_acc_rej_plsamp.png" width="700"/>
+</p>
+
+The sampling of $$x_{\rm try}$$ here is automatically weighted to include the power-law so that we only need to compare with the exponential cut-off part of the distribution with our uniform sampling of $$p_{\rm try}$$. This approach is much more efficient - we only needed 1592 trials to generate 1000 samples!
+
+To convince ourselves that both these approaches do indeed lead to the expected distribution, we compare the resulting distributions below. The binned counts values are themselved Poisson distributed (hence the scatter, which is different for each sample).
+
+<p align='center'>
+<img alt="Accept-reject PL, U comparison" src="../fig/ep12_acc_rej_comparison.png" width="700"/>
+</p>
+
+
+## Markov chains and detailed balance
+
+A Markov chain is a sequence of random variables where the probability of each variable depends only on the state attained in the previous step, not on the full path that led to that state. For example, consider a simple example of a _random walk_, also called _Brownian motion_, in 1 dimension. A sequence of independent and identically distributed (i.i.d) random variates $$\epsilon_{i}$$ (drawn from a population with me can be used to form a new variate $$X$$:
+
+$$X_{i}=X_{i-1}+\epsilon_i$$
+
+It is easy to see that after $$n$$ steps, $$E[X]=
+
+
 ## Understanding the Metropolis-Hastings MCMC Algorithm
 
 The Metropolis-Hastings algorithm is a cornerstone of computational physics and astronomy, particularly in the context of Bayesian inference and statistical sampling. Its primary objective is to generate a sequence of sample points from a probability distribution, especially when direct sampling is challenging.
 
 #### The Core Idea
 
-At its core, Metropolis-Hastings is a stochastic process that constructs a Markov chain. A Markov chain is a sequence of random variables where the probability of each variable depends only on the state attained in the previous step, not on the full path that led to that state.
+At its core, Metropolis-Hastings is a stochastic process that constructs a Markov chain. 
 
 #### Algorithm Steps
 
