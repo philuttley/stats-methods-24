@@ -30,7 +30,7 @@ Sampling from a distribution is commonly used to generate random numbers. A rand
 
 A simple solution to this problem is the accept-reject method, which can in principle be used to sample random numbers from any distribution $$f(x)$$ where the probability is bounded (or approximately bounded) by finite values of $$x$$. A typical approach to generate a sample of $$n$$ random variates is as follows:
 1. First, sample a trial random number from a known distribution to determine the $$x$$ value, $$x_{\rm try}$$.
-2. Calculate $$f(x)$$ and determine the ratio $$f(x_{\rm try))/\mbox{max}(f(x))$$, where $$\mbox{max}(f(x))$$ is the maximum value of the function. Now generate a uniform ($$U(0,1)$$) variate $$p_{\rm try}$$. If $$p_{\rm try}\leq f(x_{\rm try))/\mbox{max}(f(x))$$ the trial $$x_{\rm try}$$ is accepted as a random variate drawn from $$f(x)$$. Otherwise $$x_{\rm try}$$ is discarded.
+2. Calculate $$f(x)$$ and determine the ratio $$f(x_{\rm try))/{\rm max}(f(x))$$, where $$\mbox{max}(f(x))$$ is the maximum value of the function. Now generate a uniform ($$U(0,1)$$) variate $$p_{\rm try}$$. If $$p_{\rm try}\leq f(x_{\rm try))/{\rm max}(f(x))$$ the trial $$x_{\rm try}$$ is accepted as a random variate drawn from $$f(x)$$. Otherwise $$x_{\rm try}$$ is discarded.
 3. Repeat steps 1 and 2 until $$n$$ random variates from $$f(x)$$ have been accepted.
 
 Although this approach can generate random numbers very flexibly for any given distribution, it can be very inefficient if the random variates $$x_{\rm try}$$ and $$p_{\rm try}$$ used to sample from the distribution are not well-matched to its shape. For example, consider the case where we would like to sample random variates in the range $$x_{\rm min}$$ to $$x_{\rm max}$$, from a probability distribution given by a power-law with an exponential cut-off at large values of $$x$$:
@@ -67,7 +67,7 @@ def sample_plexp_ucdf(nsamp,xmin,xmax,alpha,xcut):
 We will sample from a distribution with $$\alpha=-1.5$$, $$x_{\rm cut}=5$$. The figure shows the results of the trials for a sample of 1000 variates, with successes marked in orange and rejections in blue. Note how the points are uniformly distributed in both the $$x$$ and $$y$$ directions, but because of the steepness of the function, only a small fraction of trials are actually accepted: here we generated 18710 trials to obtain only 1000 samples!
  
 <p align='center'>
-<img alt="Accept-reject uniform" src="../fig/ep12_acc_rej_usamp.png" width="700"/>
+<img alt="Accept-reject uniform" src="../fig/ep12_acc_rej_usamp.png" width="400"/>
 </p>
 
 We can improve the situation significantly if we tailor the shape of our trial distributions to better match the function we are trying to sample from. E.g. instead of sampling $$x_{\rm try}$$ from a uniform distribution, we can instead sample it from a power-law distribution with the same index as the exponentially cut-off power-law we are trying to sample from. A power-law distribution can be easily integrated and inverted to obtain random samples from it. In this way, we can remove much of the inefficiency of the uniform sampling of $$x_{\rm try}$$ because we have already accounted for one part of the distribution function. This can be better seen from the example code and figure which use this approach:
@@ -103,7 +103,7 @@ def sample_plexp_plcdf(nsamp,xmin,xmax,alpha,xcut):
 ```
 
 <p align='center'>
-<img alt="Accept-reject PL" src="../fig/ep12_acc_rej_plsamp.png" width="700"/>
+<img alt="Accept-reject PL" src="../fig/ep12_acc_rej_plsamp.png" width="400"/>
 </p>
 
 The sampling of $$x_{\rm try}$$ here is automatically weighted to include the power-law so that we only need to compare with the exponential cut-off part of the distribution with our uniform sampling of $$p_{\rm try}$$. This approach is much more efficient - we only needed 1592 trials to generate 1000 samples!
@@ -111,26 +111,22 @@ The sampling of $$x_{\rm try}$$ here is automatically weighted to include the po
 To convince ourselves that both these approaches do indeed lead to the expected distribution, we compare the resulting distributions below. The binned counts values are themselved Poisson distributed (hence the scatter, which is different for each sample).
 
 <p align='center'>
-<img alt="Accept-reject PL, U comparison" src="../fig/ep12_acc_rej_comparison.png" width="700"/>
+<img alt="Accept-reject PL, U comparison" src="../fig/ep12_acc_rej_comparison.png" width="400"/>
 </p>
 
 
-## Markov chains and detailed balance
+## More sophisticated sampling: Markov Chain Monte Carlo
 
-A Markov chain is a sequence of random variables where the probability of each variable depends only on the state attained in the previous step, not on the full path that led to that state. For example, consider a simple example of a _random walk_, also called _Brownian motion_, in 1 dimension. A sequence of independent and identically distributed (i.i.d) random variates $$\epsilon_{i}$$ (drawn from a population with me can be used to form a new variate $$X$$:
+Accept-reject sampling is useful for generating random variates drawn from a function where we know the bounds and can efficiently sample from the range of values of $$x$$ in a way that minimises the number of trial attempts. You may already have noticed that a feature of the power-law sampling of $$x$$ in the example shown above was that it made the sampler function more efficient because it was able to sample $$x$$ more sparsely where the probability was low, and more densely where the probability is high. However, the additional sampling of $$p_{\rm try}$$ still reduced the efficiency of the sampler. And worse, the approach we used was only possible because our distribution had simple form, and in only one ($$x$$) dimension. What if we want to sample random variates from more difficult distributions, including multivariate distributions?
 
-$$X_{i}=X_{i-1}+\epsilon_i$$
+Ideally, we would like a sampler which produces samples on the parameter space whose density of sampling matches the probability density of the distribution itself, so the sampler is highly efficient. Such a sampler should also allow us to sample from complex multivariate distributions. _Markov Chain Monte Carlo (MCMC)_ methods provide exactly the kind of sampler we are looking for. Since they efficiently sample the given pdf, samples generated from an MCMC sampler can be used to estimate confidence intervals without integration, by calculating the intervals which contain the desired fraction of points. Since MLEs for model parameters are themselves random variates drawn from a posterior distribution, we can use MCMC to efficiently estimate confidence intervals for models with multiple parameters without the need for a computationally expensive brute-force grid search.
 
-It is easy to see that after $$n$$ steps, $$E[X]=
+To see how MCMC works, we can consider its key algorithm. The Metropolis-Hastings algorithm is a cornerstone of computational physics and astronomy, particularly in the context of Bayesian inference and statistical sampling. Its primary objective is to generate a sequence of sample points from a probability distribution, especially when direct sampling is challenging. 
 
 
 ## Understanding the Metropolis-Hastings MCMC Algorithm
 
-The Metropolis-Hastings algorithm is a cornerstone of computational physics and astronomy, particularly in the context of Bayesian inference and statistical sampling. Its primary objective is to generate a sequence of sample points from a probability distribution, especially when direct sampling is challenging.
-
-#### The Core Idea
-
-At its core, Metropolis-Hastings is a stochastic process that constructs a Markov chain. 
+At its core, Metropolis-Hastings is a stochastic process that constructs a Markov chain. A Markov chain is a sequence of random variables where the probability of each variable depends only on the state attained in the previous step, not on the full path that led to that state. E.g. a well-known example of a Markov chain is a _random walk_, also known as _Brownian motion_.
 
 #### Algorithm Steps
 
@@ -138,22 +134,22 @@ At its core, Metropolis-Hastings is a stochastic process that constructs a Marko
 
 2. **Iteration**: For each step $$i$$, perform the following.
 
-**Proposal**: Generate a new candidate point $$x'$$ sampled from a proposal distribution $$q(x',x_i)$$. This distribution is often chosen to be symmetric (e.g. a normal distribution centered on $$x_i$$) but doesn't have to be.
+  **Proposal**: Generate a new candidate point $$x'$$ sampled from a proposal distribution $$q(x',x_i)$$. This distribution is often chosen to be symmetric (e.g. a normal distribution centered on $$x_i$$) but doesn't have to be.
 
-**Acceptance Criterion**: Calculate the acceptance probability $$\alpha$$ given by:
+  **Acceptance Criterion**: Calculate the acceptance probability $$\alpha$$ given by:
       
-$$\alpha(x'|x_i) = \min \left(1,\frac{p(x')q(x_i|x')}{p(x_i)q(x'|x_i)}\right)$$
+  $$\alpha(x'|x_i) = \min \left(1,\frac{p(x')q(x_i|x')}{p(x_i)q(x'|x_i)}\right)$$
       
-where $$p(x)$$ is the target distribution we want to sample from.
+  where $$p(x)$$ is the target distribution we want to sample from.
 
-**Accept or Reject**: Draw a random number $$u$$ from a uniform distribution over $$[0, 1]$$. If $$u \leq \alpha$$, accept $$x'$$ as the next point in the chain (set $$x_{i+1} = x'$$). Otherwise, reject $$x'$$ and set $$x_{i+1} = x_i$$.
+  **Accept or Reject**: Draw a random number $$u$$ from a uniform distribution over $$[0, 1]$$. If $$u \leq \alpha$$, accept $$x'$$ as the next point in the chain (set $$x_{i+1} = x'$$). Otherwise, reject $$x'$$ and set $$x_{i+1} = x_i$$.
 
 3. **Convergence**: Repeat step 2 until the chain reaches a stationary distribution. The number of iterations required depends on the problem and the chosen proposal distribution.
 
 
 ## Easy Markov Chain Monte Carlo with emcee
 
-In this tutorial we will learn how to use the `emcee` Markov Chain Monte Carlo (MCMC) Python module to obtain confidence intervals for a multi-parameter model fit. The approach is based on the example of fitting models to data, given on the `emcee` website: http://dfm.io/emcee/current/user/line/.  You should have already installed `emcee` in your Python environment (e.g. using `pip install emcee`) before you start.  Also, you should install the handy `corner` plotting module.
+Now we will learn how to use the `emcee` Markov Chain Monte Carlo (MCMC) Python module to obtain confidence intervals for a multi-parameter model fit. The approach is based on the example of fitting models to data, given on the `emcee` website: http://dfm.io/emcee/current/user/line/.  You should have already installed `emcee` in your Python environment before you start.  Also, you should install the handy `corner` plotting module.
 ```python
 import numpy as np
 import scipy.stats as sps
