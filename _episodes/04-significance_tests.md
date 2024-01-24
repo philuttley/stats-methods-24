@@ -1,6 +1,6 @@
 ---
 title: >-
-    Introducing significance tests and comparing means
+    4. Introducing significance tests and comparing means
 teaching: 60
 exercises: 60
 questions:
