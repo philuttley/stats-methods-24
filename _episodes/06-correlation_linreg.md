@@ -1,6 +1,6 @@
 ---
 title: >-
-    Multivariate data - correlation tests and least-squares fitting
+    6. Multivariate data - correlation tests and least-squares fitting
 teaching: 60
 exercises: 60
 questions:
