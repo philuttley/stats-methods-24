@@ -1,6 +1,6 @@
 ---
 title: >-
-    Bayes' Theorem
+    7. Bayes' Theorem
 teaching: 60
 exercises: 60
 questions:
