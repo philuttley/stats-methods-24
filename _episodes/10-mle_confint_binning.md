@@ -1,6 +1,6 @@
 ---
 title: >-
-    Confidence intervals on MLEs and fitting binned Poisson event data
+    10. Confidence intervals on MLEs and fitting binned Poisson event data
 teaching: 60
 exercises: 60
 questions:
