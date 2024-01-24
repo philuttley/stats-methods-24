@@ -1,6 +1,6 @@
 ---
 title: >-
-    Continuous random variables and their probability distributions
+    3. Continuous random variables and their probability distributions
 teaching: 60
 exercises: 60
 questions:
