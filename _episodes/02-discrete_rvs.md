@@ -1,6 +1,6 @@
 ---
 title: >-
-    Discrete random variables and their probability distributions
+    2. Discrete random variables and their probability distributions
 teaching: 60
 exercises: 60
 questions:
