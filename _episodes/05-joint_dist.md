@@ -1,6 +1,6 @@
 ---
 title: >-
-    Joint probability distributions
+    5. Joint probability distributions
 teaching: 60
 exercises: 60
 questions:
