@@ -1,6 +1,6 @@
 ---
 title: >-
-    Maximum likelihood estimation and weighted least-squares model fitting
+    9. Maximum likelihood estimation and weighted least-squares model fitting
 teaching: 60
 exercises: 60
 questions:
