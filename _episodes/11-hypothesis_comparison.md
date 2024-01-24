@@ -1,6 +1,6 @@
 ---
 title: >-
-   Likelihood ratio: model comparison and confidence intervals
+   11. Likelihood ratio: model comparison and confidence intervals
 teaching: 60
 exercises: 60
 questions:
