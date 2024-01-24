@@ -1,6 +1,6 @@
 ---
 title: >-
-    Introducing probability calculus and conditional probability
+    1. Introducing probability calculus and conditional probability
 teaching: 40
 exercises: 40
 questions:
