@@ -1,6 +1,6 @@
 ---
 title: >-
-   MCMC for model-fitting and error estimation
+   12. MCMC for model-fitting and error estimation
 teaching: 60
 exercises: 60
 questions:
@@ -70,7 +70,7 @@ def sample_plexp_ucdf(nsamp,xmin,xmax,alpha,xcut):
 We will sample from a distribution with $$\alpha=-1.5$$, $$x_{\rm cut}=5$$. The figure shows the results of the trials for a sample of 1000 variates, with successes marked in orange and rejections in blue. Note how the points are uniformly distributed in both the $$x$$ and $$y$$ directions, but because of the steepness of the function, only a small fraction of trials are actually accepted: here we generated 18710 trials to obtain only 1000 samples!
  
 <p align='center'>
-<img alt="Accept-reject uniform" src="../fig/ep12_acc_rej_usamp.png" width="400"/>
+<img alt="Accept-reject uniform" src="../fig/ep12_acc_rej_usamp.png" width="500"/>
 </p>
 
 We can improve the situation significantly if we tailor the shape of our trial distributions to better match the function we are trying to sample from. E.g. instead of sampling $$x_{\rm try}$$ from a uniform distribution, we can instead sample it from a power-law distribution with the same index as the exponentially cut-off power-law we are trying to sample from. A power-law distribution can be easily integrated and inverted to obtain random samples from it. In this way, we can remove much of the inefficiency of the uniform sampling of $$x_{\rm try}$$ because we have already accounted for one part of the distribution function. This can be better seen from the example code and figure which use this approach:
@@ -106,7 +106,7 @@ def sample_plexp_plcdf(nsamp,xmin,xmax,alpha,xcut):
 ```
 
 <p align='center'>
-<img alt="Accept-reject PL" src="../fig/ep12_acc_rej_plsamp.png" width="400"/>
+<img alt="Accept-reject PL" src="../fig/ep12_acc_rej_plsamp.png" width="500"/>
 </p>
 
 The sampling of $$x_{\rm try}$$ here is automatically weighted to include the power-law so that we only need to compare with the exponential cut-off part of the distribution with our uniform sampling of $$p_{\rm try}$$. This approach is much more efficient - we only needed 1592 trials to generate 1000 samples!
@@ -114,7 +114,7 @@ The sampling of $$x_{\rm try}$$ here is automatically weighted to include the po
 To convince ourselves that both these approaches do indeed lead to the expected distribution, we compare the resulting distributions below. The binned counts values are themselved Poisson distributed (hence the scatter, which is different for each sample).
 
 <p align='center'>
-<img alt="Accept-reject PL, U comparison" src="../fig/ep12_acc_rej_comparison.png" width="400"/>
+<img alt="Accept-reject PL, U comparison" src="../fig/ep12_acc_rej_comparison.png" width="500"/>
 </p>
 
 
@@ -216,14 +216,16 @@ model_vals = lmf_poissll(result.params,xdata,ydata,model,output_ll=False)
 plot_spec_model(edges,cdens,cdens_err,model_vals[0]) 
 ```
 
-```output
+~~~
 ##  Warning: uncertainties could not be estimated:
 [[Variables]]
     N:      1311.50560 (init = 1000)
     gamma: -1.47807219 (init = -1)
     E_cut:  4.42959276 (init = 3)
 Summed log-likelihood =  [-84.76649124]
-```
+~~~
+{: .output}
+
 <p align='center'>
 <img alt="plexp model fit" src="../fig/ep12_lmfitspectrum" width="400"/>
 </p>
@@ -418,9 +420,10 @@ def plot_chains_powspec(chain_in,labels):
 plot_chains_powspec(sampler.chain,labels_list)
 ```
 
-```output
+~~~
 Autocorrelation scales (in steps) for N, Gamma and E_cut:  [42.01211566 61.16850053 68.99906705]
-```
+~~~
+{: .output}
 
 <p align='center'>
 <img alt="plexp chains power spectrum" src="../fig/ep12_chains_powspec.png" width="400"/>
@@ -432,7 +435,7 @@ One more important point is that the $$\Gamma$$ and $$E_{\rm cut}$$ power spectr
 
 Finally we can use the `corner` module (see http://corner.readthedocs.io/en/latest/ for documentation) to plot a handy compilation of histogram and contour plots determined from our samples.  We discard the first 500 samples for each walker chain of samples, in order to avoid the burn-in region which will distort our results.  The `corner` plot requires flattened arrays where the chains for each walker are concatenated. We also 'thin' out the array by including only 1 in every 10 of the original steps. This is to make the density of points in the region surrounding the outer contours easier to see and should not significantly change our results, because the chains are not in any case independent on a scale of 10 steps. We use mostly the default settings for `corner`, and also include as lines/crosses the values of the MLEs obtained from our initial `lmfit` fit, for comparison with the sampled distributions.
 
-```
+```python
 # Plot a corner plot using thin=10 to reduce the density for visual appearance
 flat_samples = sampler.get_chain(discard=500, thin=10, flat=True) 
 fig = corner.corner(flat_samples, labels=labels_list, label_kwargs={"fontsize": 14}, truths=result.x)
@@ -440,7 +443,7 @@ plt.savefig('ep12_corner_plexpcut_1000cts.png')
 plt.show()
 ```
 <p align='center'>
-<img alt="plexp corner plot" src="../fig/p12_corner_plexpcut_1000cts.png" width="400"/>
+<img alt="plexp corner plot" src="../fig/ep12_corner_plexpcut_1000cts.png" width="400"/>
 </p>
 
 The corner plot shows that $$N$$ and $$\Gamma$$ follow marginal posterior distributions (the histograms) which appear close to normal, also manifesting as an elliptical, tilted (i.e. slightly correlated) joint distribution in the contour plot. However the marginal distribution of $$E_{\rm cut}$$ is quite strongly positively skewed, which also relates to the non-linear variations seen in the $$E_{\rm cut}$$ chains. Since $$\Gamma$$ is also strongly anti-correlated with $$E_{\rm cut}$$, the corresponding contours are also curved and clearly non-elliptical in their extremes. These results highlight the importance of using MCMC to map the posterior distribution of the parameters for this model. The simplified assumption that the MLE is normally distributed is not appropriate here, at least for $$E_{\rm cut}$$.
@@ -458,12 +461,13 @@ for i in range(ndim):
     print(txt)
 ```
 
-```output
+~~~
 Median and 1-sigma errors
 N = 1311.902 -65.972/+ 69.323
 Gamma = -1.529 -0.150/+ 0.153
 E_cut = 4.740 -0.828/+ 1.206
-```
+~~~
+{: .output}
 
 Based on the approach in this tutorial, and with suitable background reading where appropriate, you should be able to apply `emcee` to fit and or map confidence intervals for many other data sets and models, by changing the model and the likelihood function (and prior) as appropriate.
 
