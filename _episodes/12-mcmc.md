@@ -35,9 +35,9 @@ A simple solution to this problem is the accept-reject method, which can in prin
 
 Although this approach can generate random numbers very flexibly for any given distribution, it can be very inefficient if the random variates $$x_{\rm try}$$ and $$p_{\rm try}$$ used to sample from the distribution are not well-matched to its shape. For example, consider the case where we would like to sample random variates in the range $$x_{\rm min}$$ to $$x_{\rm max}$$, from a probability distribution given by a power-law with an exponential cut-off at large values of $$x$$:
 
-$$p(x)\propto x^{-\alpha}\exp(-x/x_{\rm cut})$$
+$$p(x)\propto x^{\alpha}\exp(-x/x_{\rm cut})$$
 
-This distribution is challenging both to integrate and invert the integral (to obtain the ppf). However, with the accept-reject method the function we can use is simply the right-hand side of the proportionality, i.e. $$f(x)=x^{-\alpha}\exp(-x/x_{\rm cut})$$ - we do not need to normalise it so that the probability integrates to 1, as any normalisation factor is removed in step 2 of the method. The accept-reject method ensures that the random variates of any sample-size are samples from the distribution.
+This distribution is challenging both to integrate and invert the integral (to obtain the ppf). However, with the accept-reject method the function we can use is simply the right-hand side of the proportionality, i.e. $$f(x)=x^{\alpha}\exp(-x/x_{\rm cut})$$ - we do not need to normalise it so that the probability integrates to 1, as any normalisation factor is removed in step 2 of the method. The accept-reject method ensures that the random variates of any sample-size are samples from the distribution.
 
 Let's look at some simple code where in step 1 we sample from $$U(x_{\rm min},x_{\rm max})$$ to obtain $$x_{\rm try}$$:
 
@@ -139,11 +139,7 @@ At its core, Metropolis-Hastings is a stochastic process that constructs a Marko
 
   **Proposal**: Generate a new candidate point $$x'$$ sampled from a proposal distribution $$q(x',x_i)$$. This distribution is often chosen to be symmetric (e.g. a normal distribution centered on $$x_i$$) but doesn't have to be.
 
-  **Acceptance Criterion**: Calculate the acceptance probability $$\alpha$$ given by:
-      
-  $$\alpha(x'|x_i) = \min \left(1,\frac{p(x')q(x_i|x')}{p(x_i)q(x'|x_i)}\right)$$
-      
-  where $$p(x)$$ is the target distribution we want to sample from.
+  **Acceptance Criterion**: Calculate the acceptance probability $$\alpha$$ given by $$\alpha(x'|x_i) = \min \left(1,\frac{p(x')q(x_i|x')}{p(x_i)q(x'|x_i)}\right)$$, where $$p(x)$$ is the target distribution we want to sample from.
 
   **Accept or Reject**: Draw a random number $$u$$ from a uniform distribution over $$[0, 1]$$. If $$u \leq \alpha$$, accept $$x'$$ as the next point in the chain (set $$x_{i+1} = x'$$). Otherwise, reject $$x'$$ and set $$x_{i+1} = x_i$$.
 
@@ -162,9 +158,9 @@ import emcee
 import corner
 ```
 
-First of all, we will use the accept-reject code we showed earlier in this Episode tp generate some fake data, imagining that we are looking at 1000 gamma-ray photons drawn from a photon counts density spectrum (photons per unit energy, at energy $$E$$) that can be modelled with a power-law with index $$\Gamma=-1.5$$  with an exponential cut-off at energy $$E_{\rm cut}=5$$~GeV and normalisation $$N$$:
+First of all, we will use the accept-reject code we showed earlier in this Episode tp generate some fake data, imagining that we are looking at 1000 gamma-ray photons drawn from a photon counts density spectrum (photons per unit energy, at energy $$E$$) that can be modelled with a power-law with index $$\Gamma=-1.5$$  with an exponential cut-off at energy $$E_{\rm cut}=5$$ GeV and normalisation $$N$$:
 
-$$N(E)=N E^{-\Gamma}\exp(-E/E_{\rm cut})$$
+$$N(E)=N E^{\Gamma}\exp(-E/E_{\rm cut})$$
 
 ```python
 energies, ntry = sample_plexp_plcdf(1000,1,20,-1.5,5)
@@ -227,10 +223,10 @@ Summed log-likelihood =  [-84.76649124]
 {: .output}
 
 <p align='center'>
-<img alt="plexp model fit" src="../fig/ep12_lmfitspectrum" width="400"/>
+<img alt="plexp model fit" src="../fig/ep12_lmfitspectrum.png" width="600"/>
 </p>
 
-For data in the Poisson limit like this, it is difficult to estimate confidence intervals using the 2nd order derivatives of likelihood obtained from the fit. A brute-force grid search of the likelihood surface would work but is impractical for multiple parameters, so MCMC is the best option. The fit looks reasonable so we now have some idea where the MCMC sampler needs to start on the parameter space. Now we will set up the sampler.  We first need to set up the starting positions of the walkers in the 3-dimensional parameter space, which will roam the likelihood surface and (after some burn-in time, see below) map the parameter distributions.  To do this, we follow the approach of the `emcee` example and generate the starting positions from narrow normal distributions centred on the parameter MLEs.  For the standard deviation of the distributions we use a fraction of the MLE value.
+The warning arises because, for data in the Poisson limit like this, it is difficult to estimate confidence intervals using the 2nd order derivatives of likelihood obtained from the fit. A brute-force grid search of the likelihood surface would work but is impractical for multiple parameters, so MCMC is the best option. The fit looks reasonable so we now have some idea where the MCMC sampler needs to start on the parameter space. Now we will set up the sampler.  We first need to set up the starting positions of the walkers in the 3-dimensional parameter space, which will roam the likelihood surface and (after some burn-in time, see below) map the parameter distributions.  To do this, we follow the approach of the `emcee` example and generate the starting positions from narrow normal distributions centred on the parameter MLEs.  For the standard deviation of the distributions we use a fraction of the MLE value.
 
 ```python
 best_par_list = []
@@ -246,7 +242,7 @@ pos = [best_par + 0.01*best_par*sps.norm.rvs(size=ndim) for i in range(nwalkers)
 
 Now we are ready to run the MCMC 'sampler' which lets the walkers map the likelihood surface. Since we are using emcee as a standalone method, we need to modify our function to work with parameters expressed in a tuple rather than an lmfit parameters object. `emcee` also maximises log-likelihoods, so we should also change the output to be log-likelihood rather than $$-1\times$$log-likelihood, which was needed for fitting by optimisers such as lmfit (which seek to minimize functions). 
 
-We will also make our approach more Bayesian by incorporating priors in the probability estimate (see description of the method in the lecture, i.e. we are converting the likelihood into $\pi(\theta)$.  Since we are using log-likelihood, these should also be expressed as a logarithm (they are thus sometimes known as _log-priors_). The prior can be used to constrain the ranges of allowed parameter values to those that are previously determined from different data sets, or it could also be neglected (this is equivalent to assuming a uniform prior from $\infty$ to $\infty$, i.e. no preference at all about what values the prior should take).  Priors may also follow other distributions: read a Bayesian statistics book for more details.  The prior should __not__ be used to constrain parameters such that they cut off the true parameter distributions (i.e. don't use prior boundaries that are comparable to a few times the parameter error bar or less). If in doubt, use a constant log-prior which is set to zero across the parameter space.
+We will also make our approach more Bayesian by incorporating priors in the probability estimate, so that we are sampling from the posterior distribution.  Since we are using log-likelihood, these should also be expressed as a logarithm (they are thus sometimes known as _log-priors_). The prior can be used to constrain the ranges of allowed parameter values to those that are previously determined from different data sets, or it could also be neglected (this is equivalent to assuming a uniform prior from $$-\infty$$ to $$+\infty$$, i.e. no preference at all about what values the prior should take).  Priors may also follow other distributions: read a Bayesian statistics book for more details.  The prior should __not__ be used to constrain parameters such that they cut off the true parameter distributions (i.e. don't use prior boundaries that are comparable to a few times the parameter error bar or less). If in doubt, use a constant log-prior which is set to zero across the parameter space.
 
 We now define the functions we need for the Poisson log-likelihood calculation:
 
@@ -335,7 +331,7 @@ def plexp_logprior(pars):
 
 Note that here we choose a simple uniform prior when certain limits are satisfied. In particular, we limit the cut-off energy and normalisation to both be positive, while the cut-off energy is also limited to be less than 20 GeV.
 
-Now we will run the sampler to sample our `llwithprior` function (if not using a prior you could also call `LogLikelihood2` directly.  In order for the fit to map out the distribution properly, we  generate 10000 samples for each walker. Since this may take some time, we will also incorporate parallel processing to obtain faster results with a modern multi-core computer. This can be done simply by using `Pool` from the `multiprocess` module.
+Now we will run the sampler.  In order for the fit to map out the distribution properly, we  generate 10000 samples for each walker. Since this may take some time, we will also incorporate parallel processing to obtain faster results with a modern multi-core computer. This can be done simply by using `Pool` from the `multiprocess` module.
 
 ```python
 from multiprocess import Pool
@@ -369,7 +365,7 @@ fig.show()
 ```
 
 <p align='center'>
-<img alt="plexp model chains" src="../fig/ep12_allchains_plexpcut_1000cts.png" width="400"/>
+<img alt="plexp model chains" src="../fig/ep12_allchains_plexpcut_1000cts.png" width="600"/>
 </p>
 
 Plotting all the walkers on top of each other looks a mess, but can highlight any continuing long-term trends or any outliers. Here we see that once the walkers spread out from their initial positions they sample a fairly stable envelope of values, which suggests that the chains have become ergodic and are sampling the distribution. Some larger outlier values of $$E_{\rm cut}$$ appear however. We can get some more insight by looking at the chain from a single walker:
@@ -389,7 +385,7 @@ fig.show()
 ```
 
 <p align='center'>
-<img alt="plexp model single chains" src="../fig/ep12_singlechain_plexpcut_1000cts.png" width="400"/>
+<img alt="plexp model single chains" src="../fig/ep12_singlechain_plexpcut_1000cts.png" width="600"/>
 </p>
 
 The single chain shows how the walker follows a kind of random walk, bounded by the parameter probability density. Note that steps in the chain which are close to one another are _not_ independent samples of the distribution, but steps sufficiently far away, more than the so-called autocorrelation scale _are_ independent. Provided the chains are many times this scale, the distribution will be well-sampled. 
@@ -426,14 +422,14 @@ Autocorrelation scales (in steps) for N, Gamma and E_cut:  [42.01211566 61.16850
 {: .output}
 
 <p align='center'>
-<img alt="plexp chains power spectrum" src="../fig/ep12_chains_powspec.png" width="400"/>
+<img alt="plexp chains power spectrum" src="../fig/ep12_chains_powspec.png" width="600"/>
 </p>
 
 For short length scales, the power spectrum has the characteristic shape of a random walk (power-law slope is -2 for power vs. frequency). This is what we expect because the walkers are randomly walking over short intervals of the posterior distribution, becoming bounded by the extent of the distribution only for larger variations. This effect is seen for length scales of a few hundred steps or longer when the power-spectrum flattens close to zero slope which indicates uncorrelated 'white noise' on those length scales. The flattening scale provides a more conservative estimate of the `burn-in' length of the chain, as well as how many indicating truly independent samples are in the chain (in this case, perhaps 30, so 3000 for 100 walkers, which should be sufficient, we hope). 
 
-One more important point is that the $$\Gamma$$ and $$E_{\rm cut}$$ power spectra at large chain lengths do not seem to completely flatten, but maintain a shallow slope. This indicates that they have still not yet sampled all the variance in the parameter distributions, which may be linked to the steep peaks appearing in he $$E_{\rm cut}$$ chains, combined with the fact that the errors in $$E_{\rm cut}$$ and $$\Gamma$$ appear to be strongly correlated (see below). The effect is small however and likely will not affect our results significantly, at least for estimating confidence intervals in the 1-3$$\sigma$$ range.
+One more important point is that the $$\Gamma$$ and $$E_{\rm cut}$$ power spectra at large chain lengths do not seem to completely flatten, but maintain a shallow slope. This indicates that they have still not yet sampled all the variance in the parameter distributions, which may be linked to the steep peaks appearing in he $$E_{\rm cut}$$ chains, combined with the fact that the errors in $$E_{\rm cut}$$ and $$\Gamma$$ appear to be strongly correlated (see below). The effect is small however and likely will not affect our results significantly, at least for estimating confidence intervals in the 1 to 3$$\sigma$$ range.
 
-Finally we can use the `corner` module (see http://corner.readthedocs.io/en/latest/ for documentation) to plot a handy compilation of histogram and contour plots determined from our samples.  We discard the first 500 samples for each walker chain of samples, in order to avoid the burn-in region which will distort our results.  The `corner` plot requires flattened arrays where the chains for each walker are concatenated. We also 'thin' out the array by including only 1 in every 10 of the original steps. This is to make the density of points in the region surrounding the outer contours easier to see and should not significantly change our results, because the chains are not in any case independent on a scale of 10 steps. We use mostly the default settings for `corner`, and also include as lines/crosses the values of the MLEs obtained from our initial `lmfit` fit, for comparison with the sampled distributions.
+Finally we can use the `corner` module (see [here][corner_site]) to plot a handy compilation of histogram and contour plots determined from our samples.  We discard the first 500 samples for each walker chain of samples, in order to avoid the burn-in region which will distort our results.  The `corner` plot requires flattened arrays where the chains for each walker are concatenated. We also 'thin' out the array by including only 1 in every 10 of the original steps. This is to make the density of points in the region surrounding the outer contours easier to see and should not significantly change our results, because the chains are not in any case independent on a scale of 10 steps. We use mostly the default settings for `corner`, and also include as lines/crosses the values of the MLEs obtained from our initial `lmfit` fit, for comparison with the sampled distributions.
 
 ```python
 # Plot a corner plot using thin=10 to reduce the density for visual appearance
@@ -443,12 +439,12 @@ plt.savefig('ep12_corner_plexpcut_1000cts.png')
 plt.show()
 ```
 <p align='center'>
-<img alt="plexp corner plot" src="../fig/ep12_corner_plexpcut_1000cts.png" width="400"/>
+<img alt="plexp corner plot" src="../fig/ep12_corner_plexpcut_1000cts.png" width="800"/>
 </p>
 
 The corner plot shows that $$N$$ and $$\Gamma$$ follow marginal posterior distributions (the histograms) which appear close to normal, also manifesting as an elliptical, tilted (i.e. slightly correlated) joint distribution in the contour plot. However the marginal distribution of $$E_{\rm cut}$$ is quite strongly positively skewed, which also relates to the non-linear variations seen in the $$E_{\rm cut}$$ chains. Since $$\Gamma$$ is also strongly anti-correlated with $$E_{\rm cut}$$, the corresponding contours are also curved and clearly non-elliptical in their extremes. These results highlight the importance of using MCMC to map the posterior distribution of the parameters for this model. The simplified assumption that the MLE is normally distributed is not appropriate here, at least for $$E_{\rm cut}$$.
 
-Finally, we can use the `percentile` function in `numpy` to output the percentiles corresponding to the median and 68.3 per cent ($1 \sigma$) confidence intervals for each parameter. We use the full chains in this case, without thinning them.
+Finally, we can use the `percentile` function in `numpy` to output the percentiles corresponding to the median and 68.3 per cent ($$1 \sigma$$) confidence intervals for each parameter. We use the full chains in this case, without thinning them.
 
 ```python
 flat_samples_full = sampler.get_chain(discard=500, flat=True)
