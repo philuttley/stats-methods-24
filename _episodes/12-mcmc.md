@@ -137,15 +137,21 @@ At its core, Metropolis-Hastings is a stochastic process that constructs a Marko
 
 2\. **Iteration**: For each step $$i$$, perform the following.
 
-a\. _Proposal_: Generate a new candidate point $$x'$$ sampled from a proposal distribution $$q(x',x_i)$$. This distribution is often chosen to be symmetric (e.g. a normal distribution centered on $$x_i$$) but doesn't have to be.
+<pre>
+  i\. _Proposal_: Generate a new candidate point $$x'$$ sampled from a proposal distribution $$q(x',x_i)$$. This distribution is often chosen to be symmetric (e.g. a normal distribution centered on $$x_i$$) but doesn't have to be.
+</pre>
 
-b\. _Acceptance Criterion_: Calculate the acceptance probability $$\alpha$$ given by:
+<pre>
+  ii\. _Acceptance Criterion_: Calculate the acceptance probability $$\alpha$$ given by:
 
   $$\alpha(x'|x_i) = {\rm min}\left(1,\frac{p(x')q(x_i|x')}{p(x_i)q(x'|x_i)}\right)$$ 
 
   where $$p(x)$$ is the target distribution we want to sample from.
+</pre>
 
-c\. _Accept or Reject_: Draw a random number $$u$$ from a uniform distribution over $$[0, 1]$$. If $$u \leq \alpha$$, accept $$x'$$ as the next point in the chain (set $$x_{i+1} = x'$$). Otherwise, reject $$x'$$ and set $$x_{i+1} = x_i$$.
+<pre>
+iii\. _Accept or Reject_: Draw a random number $$u$$ from a uniform distribution over $$[0, 1]$$. If $$u \leq \alpha$$, accept $$x'$$ as the next point in the chain (set $$x_{i+1} = x'$$). Otherwise, reject $$x'$$ and set $$x_{i+1} = x_i$$.
+</pre>
 
 3\. **Convergence**: Repeat step 2 until the chain reaches a stationary distribution. The number of iterations required depends on the problem and the chosen proposal distribution.
 
