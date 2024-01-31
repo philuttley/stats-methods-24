@@ -141,11 +141,11 @@ At its core, Metropolis-Hastings is a stochastic process that constructs a Marko
 
 **Acceptance Criterion**: Calculate the acceptance probability $$\alpha$$ given by:
 
-$$\alpha(x'|x_i) = \left(1,\frac{p(x')q(x_i|x')}{p(x_i)q(x'|x_i)}\right)$$ 
+$$\alpha(x'|x_i) = {\rm min}\left(1,\frac{p(x')q(x_i|x')}{p(x_i)q(x'|x_i)}\right)$$ 
 
 where $$p(x)$$ is the target distribution we want to sample from.
 
-**Accept or Reject**: Draw a random number $$u$$ from a uniform distribution over $$[0, 1\$$. If $$u \leq \alpha$$, accept $$x'$$ as the next point in the chain (set $$x_{i+1} = x'$$). Otherwise, reject $$x'$$ and set $$x_{i+1} = x_i$$.
+**Accept or Reject**: Draw a random number $$u$$ from a uniform distribution over $$[0, 1]$$. If $$u \leq \alpha$$, accept $$x'$$ as the next point in the chain (set $$x_{i+1} = x'$$). Otherwise, reject $$x'$$ and set $$x_{i+1} = x_i$$.
 
 3. **Convergence**: Repeat step 2 until the chain reaches a stationary distribution. The number of iterations required depends on the problem and the chosen proposal distribution.
 
