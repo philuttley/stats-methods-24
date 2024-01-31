@@ -145,7 +145,7 @@ ii\. _Acceptance Criterion_: Calculate the acceptance probability $$\alpha$$ giv
 
   where $$p(x)$$ is the target distribution we want to sample from.
 
-iii\. _Accept or Reject_: If $$\alpha=1$$ automatically accept $$x'$$ as the next point in the chain. If $$\alpha<1$$, draw a random number $$u$$ from a uniform distribution over $$[0, 1]$$. If $$u \leq \alpha$$, accept $$x'$$ as the next point in the chain (set $$x_{i+1} = x'$$). Otherwise, reject $$x'$$ and set $$x_{i+1} = x_i$$.
+iii\. _Accept or Reject_: If $$\alpha=1$$, automatically accept $$x'$$ as the next point in the chain. If $$\alpha<1$$, draw a random number $$u$$ from a uniform distribution over $$[0, 1]$$. If $$u \leq \alpha$$, accept $$x'$$ as the next point in the chain (set $$x_{i+1} = x'$$). Otherwise, reject $$x'$$ and set $$x_{i+1} = x_i$$.
 
 3\. **Convergence**: Repeat step 2 until the chain reaches a stationary distribution. The number of iterations required depends on the problem and the chosen proposal distribution.
 
