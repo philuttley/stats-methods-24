@@ -133,21 +133,21 @@ At its core, Metropolis-Hastings is a stochastic process that constructs a Marko
 
 #### Algorithm Steps
 
-1. **Initialization**: Start with an arbitrary point $$x_0$$ in the parameter space.
+1\. **Initialization**: Start with an arbitrary point $$x_0$$ in the parameter space.
 
-2. **Iteration**: For each step $$i$$, perform the following.
+2\. **Iteration**: For each step $$i$$, perform the following.
 
-**Proposal**: Generate a new candidate point $$x'$$ sampled from a proposal distribution $$q(x',x_i)$$. This distribution is often chosen to be symmetric (e.g. a normal distribution centered on $$x_i$$) but doesn't have to be.
+  **Proposal**: Generate a new candidate point $$x'$$ sampled from a proposal distribution $$q(x',x_i)$$. This distribution is often chosen to be symmetric (e.g. a normal distribution centered on $$x_i$$) but doesn't have to be.
 
-**Acceptance Criterion**: Calculate the acceptance probability $$\alpha$$ given by:
+  **Acceptance Criterion**: Calculate the acceptance probability $$\alpha$$ given by:
 
-$$\alpha(x'|x_i) = {\rm min}\left(1,\frac{p(x')q(x_i|x')}{p(x_i)q(x'|x_i)}\right)$$ 
+  $$\alpha(x'|x_i) = {\rm min}\left(1,\frac{p(x')q(x_i|x')}{p(x_i)q(x'|x_i)}\right)$$ 
 
-where $$p(x)$$ is the target distribution we want to sample from.
+  where $$p(x)$$ is the target distribution we want to sample from.
 
-**Accept or Reject**: Draw a random number $$u$$ from a uniform distribution over $$[0, 1]$$. If $$u \leq \alpha$$, accept $$x'$$ as the next point in the chain (set $$x_{i+1} = x'$$). Otherwise, reject $$x'$$ and set $$x_{i+1} = x_i$$.
+  **Accept or Reject**: Draw a random number $$u$$ from a uniform distribution over $$[0, 1]$$. If $$u \leq \alpha$$, accept $$x'$$ as the next point in the chain (set $$x_{i+1} = x'$$). Otherwise, reject $$x'$$ and set $$x_{i+1} = x_i$$.
 
-3. **Convergence**: Repeat step 2 until the chain reaches a stationary distribution. The number of iterations required depends on the problem and the chosen proposal distribution.
+3\. **Convergence**: Repeat step 2 until the chain reaches a stationary distribution. The number of iterations required depends on the problem and the chosen proposal distribution.
 
 Modern MCMC samplers have a basis in the Metropolis-Hastings algorithm but include many refinements in order to quickly and efficiently sample the posterior distribution. For example, modern methods allow the generation of many separate _walkers_ to step across the likelihood surface to provide many independent chains. The walkers also facilitate the use of parallel processing by the MCMC sampler, to achieve results more quickly. For the remainder of this Episode we will focus on one such MCMC sampler, the emcee module. There are many other you could try however, depending on your use case and what the sampler is optimised for. You can find a handy [list of Python MCMC samplers here][python_mcmc_samplers].
 
