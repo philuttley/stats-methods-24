@@ -247,7 +247,7 @@ Confidence intervals and upper or lower limits can be thought of as the model ca
 
 Let's imagine that our $$\gamma$$-ray photon data arises from an extreme cosmic explosion like a gamma-ray burst, and that a model predicts that we should see a Gaussian emission line appearing in our spectrum at $$E_{\rm line}=33.1$$ GeV, with Gaussian width $$\sigma=5$$ GeV. There doesn't appear to be feature there in our spectrum, but the line flux (i.e. normalisation) is not specified by the model, so it is an adjustable parameter which our data can constrain. What is the 3-$$\sigma$$ upper limit on the line flux?
 
-For this task we can repurpose the functions `grid1d_chisqmin` and `calc_error_chisq`, defined in the previous episode in order to calculate exact confidence intervals from the $$\chi^{2}$$ statistics calculated for a grid of parameter values. For 1 constrained parameter (i.e. 1 degree of freedom) and a 3-$$\sigma$$ upper limit, we need to find when $$\chi^{2}$$ has changed (relative to the $$\chi^{2}$$ for zero line flux) by $$\Delta \chi^{2}=3^{2}=9$$. This was an easy calculation by hand, but with `scipy.stats` distributions you can also use the _inverse survival function_ which is the survival-function equivalent of the ppf (which is the inverse cdf), e.g. try:
+For this task we can repurpose the functions `grid1d_chisqmin` and `interval_finder`, defined in the previous episode in order to calculate exact confidence intervals from the $$\chi^{2}$$ statistics calculated for a grid of parameter values. For 1 constrained parameter (i.e. 1 degree of freedom) and a 3-$$\sigma$$ upper limit, we need to find when $$\chi^{2}$$ has changed (relative to the $$\chi^{2}$$ for zero line flux) by $$\Delta \chi^{2}=3^{2}=9$$. This was an easy calculation by hand, but with `scipy.stats` distributions you can also use the _inverse survival function_ which is the survival-function equivalent of the ppf (which is the inverse cdf), e.g. try:
 ~~~
 print(sps.chi2.isf(2*sps.norm.sf(3),df=1))
 ~~~
@@ -289,16 +289,6 @@ def grid1d_binchisqmin(a_name,a_range,a_steps,parm,model,xdata,ydata,yerrs):
         chisq_grid[i] = result.chisqr
         
     return a_best, minchisq, a_grid, chisq_grid 
-
-def calc_upper_chisq(delchisq,minchisq,a_grid,chisq_grid):
-    '''Function to return upper values of a parameter 'a' for a given delta-chi-squared
-       Input:
-           delchisq - the delta-chi-squared for the confidence interval required (e.g. 1 for 1-sigma error)
-           a_grid, chisq_grid - grid of 'a' and corresponding chi-squared values used for interpolation'''
-    # First interpolate over the grid for values > a_best and find upper interval bound
-    chisq_interp_upper = spinterp.interp1d(chisq_grid,a_grid)
-    a_upper = chisq_interp_upper(minchisq+delchisq)
-    return a_upper
 ~~~
 {: .language-python}
 
@@ -325,9 +315,9 @@ a_best, minchisq, a_grid, chisq_grid = grid1d_binchisqmin(a_name,a_range,n_steps
 
 # Now give the output
 delchisq = 9
-a_upper = calc_upper_chisq(delchisq,minchisq,a_grid,chisq_grid)
+a_3sig_limit = interval_finder(delchisq,minchisq,a_grid,chisq_grid)
 print("Best-fitting line flux = ",a_best,"for chisq = ",minchisq)
-print("3-sigma upper limit on line flux: ", a_upper,"for chisq = ",minchisq+delchisq)
+print("3-sigma upper limit on line flux: ", a_3sig_limit[1],"for chisq = ",minchisq+delchisq)
 ~~~
 {: .language-python}
 
