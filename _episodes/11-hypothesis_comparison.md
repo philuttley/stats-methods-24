@@ -253,7 +253,8 @@ print(sps.chi2.isf(2*sps.norm.sf(3),df=1))
 ~~~
 {: .language-python}
 
-Now the modified versions of the functions. The `calc_error_chisq` function is modified to calculate only the upper value of an interval, consistent with an upper limit.
+Now the modified versions of the functions. The `interval_finder` function can be used since it returns the lower and upper value of an interval. We need the upper value here, 
+consistent with an upper limit. The lower value will be bounded at zero or lower.
 
 ~~~
 def grid1d_binchisqmin(a_name,a_range,a_steps,parm,model,xdata,ydata,yerrs):
