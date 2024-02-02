@@ -109,22 +109,31 @@ In the approach that follows, we will use this so-called 'brute force' grid sear
 > ~~~
 > {: .language-python}
 > 
-> To evaluate the confidence intervals as accurately as we can (given our grid spacing), we can create an interpolation function from the grid, which will return the value of a parameter corresponding to a given $$\chi^{2}$$-statistic value. This way we can calculate the interval corresponding to a given $$\Delta \chi^{2}$$ from the minimum value. Since the $$\chi^{2}$$-statistic is symmetric about the minimum, we should consider the lower and upper intervals on either side of the minimum separately:
+> To evaluate the confidence intervals as accurately as we can (given our grid spacing), we can interpolate the grid using a cubic spline function. By applying the root-finding method to this interpolated function we can return the value of the parameter corresponding to a given $$\chi^{2}$$-statistic value (or negative log-likelihood if we use the Poisson log-likelihood, see later in this Episode). This way we can calculate the interval corresponding to a given $$\Delta \chi^{2}$$ from the minimum value. Since the $$\chi^{2}$$-statistic is symmetric about the minimum, we should consider the lower and upper intervals on either side of the minimum separately:
 > 
 > ~~~
-> def calc_error_chisq(delchisq,a_best,minchisq,a_grid,chisq_grid):
->     '''Function to return upper and lower values of a parameter 'a' for a given delta-chi-squared
->        Input:
->            delchisq - the delta-chi-squared for the confidence interval required (e.g. 1 for 1-sigma error)
->            a_best, minchisq - best-fitting value for 'a' and corresponding chi-squared minimum
->            a_grid, chisq_grid - grid of 'a' and corresponding chi-squared values used for interpolation'''
->     # First interpolate over the grid for values > a_best and find upper interval bound
->     chisq_interp_upper = spinterp.interp1d(chisq_grid[a_grid > a_best],a_grid[a_grid > a_best])
->     a_upper = chisq_interp_upper(minchisq+delchisq)
->     # Interpolate for values <= a_best to find lower interval bound
->     chisq_interp_lower = spinterp.interp1d(chisq_grid[a_grid <= a_best],a_grid[a_grid <= a_best])
->     a_lower = chisq_interp_lower(minchisq+delchisq)  
->     return [a_lower,a_upper]
+> def interval_finder(delstat,a_best,min_fitstat,a_grid,fitstat_grid):
+>    '''Uses cubic spline interpolation of the 1-d grid with the root-finding method of
+>    scipy's cubic spline function to infer the values of the grid corresponding to the
+>    given change in fit-statistic.
+>    Input:
+>        delstat - required change in fit statistic, e.g. delta-chisq or delta-negative-log-likelihood.
+>        a_best - best fit value for the parameter 'a' you want the interval for.
+>        min_fitstat - fit statistic for the best-fit (e.g. chisq or -ve log-likelihood)
+>        a_grid - grid of parameter values from brute force grid search
+>        fitstat_grid - grid of fit statistic values from brute force grid search.
+>    Returns:
+>        Interval in form of a tuple corresponding to upper and lower interval value.'''
+>    # Make sure that the parameter and fit-statistic grids are sorted.
+>    sortind = np.argsort(a_grid)
+>    a_grid = a_grid[sortind]
+>    fitstat_grid = fitstat_grid[sortind]
+>    ## Make an interpolate object with the chisq grid - best fit - delstat and find roots.
+>    a_interpsig = spinterp.CubicSpline(a_grid,np.array(fitstat_grid-min_fitstat-delstat))
+>    bounds = a_interpsig.roots()    
+>    print('bounds',bounds,'fitstat a_min, a_max:',fitstat_grid[0]-min_fitstat,fitstat_grid[-1]-min_fitstat)
+>    ## Choose roots closest to best fitting value, as roots sometimes also returns values at the edges of the grid.
+>    return (bounds[bounds<a_best][-1],bounds[bounds>a_best][0])
 > ~~~
 > {: .language-python}
 >
@@ -161,7 +170,7 @@ In the approach that follows, we will use this so-called 'brute force' grid sear
 >>     params.add_many(('gam0',30),('E0',130),('N',150))
 >>     a_best[i], minchisq[i], a_grid[i,:], chisq_grid[i,:] = grid1d_chisqmin(par_names[i],par_range,n_steps,params,model,
 >>                              pion_clean['energy'],pion_clean['xsect'],pion_clean['error'])
->>     a_int[i,:] = calc_error_chisq(delchisq,a_best[i],minchisq[i],a_grid[i,:],chisq_grid[i,:])
+>>     a_int[i,:] = interval_finder(delchisq,a_best[i],minchisq[i],a_grid[i,:],chisq_grid[i,:])
 >>     # Good presentation of results should round off MLE and errors to an appropriate number
 >>     # of decimal places. Here we choose 3 to demonstrate the symmetry of the errors, we 
 >>     # could have used 2 decimal places since that is consistent with the size of the error bars
